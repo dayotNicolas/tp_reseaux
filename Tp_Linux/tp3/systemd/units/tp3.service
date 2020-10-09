@@ -1,0 +1,16 @@
+[Unit]
+Description= server web in function
+
+[Service]
+Type=simple
+Environment=PORT=50
+
+ExecStartPre= /usr/bin/sudo iptables -A INPUT -p tcp -i eth1 --dport $PORT -j ACCEPT
+ExecStart= /usr/bin/sudo python2 -m SimpleHTTPServer 50
+ExecStopPost= /usr/bin/sudo iptables -D INPUT -p tcp -i eth1 --dport $PORT -j ACCEPT
+
+User=tp3
+Group=tp3
+
+[Install]
+WantedBy=multi-user.target

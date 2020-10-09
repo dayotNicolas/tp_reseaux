@@ -1,0 +1,12 @@
+
+[Unit]
+Description=sauvegarde horaire
+Requires=backup_tp3.service
+
+[Timer]
+
+Unit=backup_tp3.service
+OnCalendar=0/1:00:00
+
+[Install]
+WantedBy=timers.target

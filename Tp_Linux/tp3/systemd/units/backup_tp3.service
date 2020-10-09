@@ -1,0 +1,14 @@
+[Unit]
+Description=Lancement des sauvegardes
+ConditionPathExists=/srv
+
+[Service]
+PIDFile=/var/run/backup/tp3.pid
+ExecStartPre=/usr/bin/sh /srv/script_check.sh
+ExecStart=/usr/bin/sh /srv/script_save.sh
+ExecStopPost=/usr/bin/sh /srv/script_max_save.sh
+
+User=backup
+
+[Install]
+WantedBy=multi-user.target
