@@ -1,0 +1,88 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.box="centos7-custom"
+  ## Les 3 lignes suivantes permettent d'éviter certains bugs et/ou d'accélérer le déploiement. Gardez-les tout le temps sauf contre-indications.
+  # Ajoutez cette ligne afin d'accélérer le démarrage de la VM (si une erreur 'vbguest' est levée, voir la note un peu plus bas)
+# config.vbguest.auto_update = false
+# Désactive les updates auto qui peuvent ralentir le lancement de la machine
+  config.vm.box_check_update = false
+# La ligne suivante permet de désactiver le montage d'un dossier partagé (ne marche pas tout le temps directement suivant vos OS, versions d'OS, etc.)
+ config.vm.synced_folder ".", "/vagrant", disabled:true
+ file_to_disk = 'VagrantDisk.vdi'
+ file_to_disk2 = 'VagrantDisk2.vdi'
+ file_to_disk3 = 'VagrantDisk3.vdi'
+ file_to_disk4 = 'VagrantDisk4.vdi'
+
+
+  config.vm.provision "shell", path: "scripts/script_commun.sh"
+
+  config.vm.define "node1" do |node1|
+    node1.vm.network "private_network", ip: "192.168.4.11"
+    node1.vm.hostname = "node1.tp4.b2"
+    node1.vm.provision "shell", path: "scripts/script_gitea.sh"
+    node1.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.name = "node1.gitea"
+    end
+  unless File.exist?(file_to_disk)
+    node1.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', file_to_disk, '--size', 5 * 1024]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+     end
+    end
+  end
+
+  config.vm.define "node2" do |node2|
+    node2.vm.network "private_network", ip: "192.168.4.12"
+    node2.vm.hostname = "node2.tp4.b2"
+    node2.vm.provision "shell", path: "scripts/script_mariadb.sh"
+    node2.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.name = "node2.mariadb"
+    end
+  unless File.exist?(file_to_disk2)
+    node2.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', file_to_disk2, '--size', 5 * 1024]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk2]
+     end
+    end
+  end
+ 
+  config.vm.define "node3" do |node3|
+    node3.vm.network "private_network", ip: "192.168.4.13"
+    node3.vm.hostname = "node3.tp4.b2"
+    node3.vm.provision "shell", path: "scripts/script_nginx.sh"
+    node3.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.name = "node3.nginx"
+    end
+  unless File.exist?(file_to_disk3)
+    node3.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', file_to_disk3, '--size', 5 * 1024]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk3]
+     end
+    end
+  end
+
+  config.vm.define "node4" do |node4|
+    node4.vm.network "private_network", ip: "192.168.4.14"
+    node4.vm.hostname = "node4.tp4.b2"
+    node4.vm.provision "shell", path: "scripts/script_nfs.sh"
+    node4.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.name = "node4.NFS"
+    end
+  unless File.exist?(file_to_disk4)
+    node4.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', file_to_disk4, '--size', 5 * 1024]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk4]
+     end
+    end
+  end 
+end
